@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Header, PageView } from './components/Header';
 import { ProductCard } from './components/ProductCard';
 import { CartDrawer } from './components/CartDrawer';
-import { ChatBot } from './components/ChatBot';
 import { AdminDashboard } from './components/AdminDashboard';
 import { PRODUCTS, WHATSAPP_PHONE_NUMBER } from './constants';
 import { CartItem, Product, ProductCategory } from './types';
-import { Search, ArrowRight, MapPin, Phone, Mail, Settings, Lock, X, AlertCircle } from 'lucide-react';
+import { Search, ArrowRight, MapPin, Phone, Settings, Lock, X, AlertCircle } from 'lucide-react';
 
 const App: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -290,8 +289,6 @@ const App: React.FC = () => {
         onUpdateQuantity={updateQuantity}
         onRemoveItem={removeFromCart}
       />
-
-      <ChatBot />
 
       {/* Custom Admin Login Modal */}
       {showLoginModal && (

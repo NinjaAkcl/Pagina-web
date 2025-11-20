@@ -1,28 +1,43 @@
 import { GoogleGenAI } from "@google/genai";
 
-// Función segura para obtener la API Key sin romper la app en navegadores estáticos (GitHub Pages)
+let aiInstance: GoogleGenAI | null = null;
+
+// Función segura para obtener la API Key sin romper la app
 const getApiKey = () => {
   try {
-    // Verificamos si 'process' existe antes de acceder a él
     if (typeof process !== 'undefined' && process.env) {
       return process.env.API_KEY;
     }
   } catch (e) {
-    console.warn("Environment process not defined");
+    // Ignoramos errores de acceso a process en navegadores antiguos
   }
   return undefined;
 };
 
-const apiKey = getApiKey();
+// Inicialización perezosa (Lazy Load): Solo creamos la instancia cuando se necesita.
+// Esto evita que la app se rompa al cargar (pantalla blanca) si no hay API Key configurada.
+const getAiInstance = () => {
+  if (aiInstance) return aiInstance;
 
-// Initialize Gemini Client
-// Si no hay API Key, inicializamos con un string vacío para evitar error de constructor inmediato,
-// pero manejamos el error al intentar enviar mensaje.
-const ai = new GoogleGenAI({ apiKey: apiKey || 'NO_KEY_CONFIGURED' });
+  const apiKey = getApiKey();
+  
+  // Si no hay key, retornamos null sin intentar crear el objeto, evitando el crash.
+  if (!apiKey) return null;
+
+  try {
+    aiInstance = new GoogleGenAI({ apiKey });
+    return aiInstance;
+  } catch (error) {
+    console.warn("Error inicializando Gemini:", error);
+    return null;
+  }
+};
 
 export const sendMessageToGemini = async (message: string): Promise<string> => {
-  if (!apiKey) {
-    return "⚠️ El chat no está disponible en este entorno (Falta API Key). Por favor contáctanos por WhatsApp.";
+  const ai = getAiInstance();
+
+  if (!ai) {
+    return "⚠️ El asistente virtual no está disponible en esta versión demo (Falta API Key). Por favor contáctanos directamente por WhatsApp para una atención inmediata.";
   }
 
   try {
