@@ -1,13 +1,28 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.API_KEY;
+// Función segura para obtener la API Key sin romper la app en navegadores estáticos (GitHub Pages)
+const getApiKey = () => {
+  try {
+    // Verificamos si 'process' existe antes de acceder a él
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env.API_KEY;
+    }
+  } catch (e) {
+    console.warn("Environment process not defined");
+  }
+  return undefined;
+};
+
+const apiKey = getApiKey();
 
 // Initialize Gemini Client
-const ai = new GoogleGenAI({ apiKey: apiKey });
+// Si no hay API Key, inicializamos con un string vacío para evitar error de constructor inmediato,
+// pero manejamos el error al intentar enviar mensaje.
+const ai = new GoogleGenAI({ apiKey: apiKey || 'NO_KEY_CONFIGURED' });
 
 export const sendMessageToGemini = async (message: string): Promise<string> => {
   if (!apiKey) {
-    return "Error: API Key no configurada. El chat no está disponible.";
+    return "⚠️ El chat no está disponible en este entorno (Falta API Key). Por favor contáctanos por WhatsApp.";
   }
 
   try {
